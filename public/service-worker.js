@@ -46,6 +46,7 @@ self.addEventListener("install", function (evt) {
   self.addEventListener('fetch', function(evt) {
     // code to handle requests goes here
 
+    
 
     
     });
