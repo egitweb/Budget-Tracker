@@ -4,7 +4,7 @@ This assignment is a Budget Tracker, where the user will be able to add expenses
 
 <h3>Preview:</h3>
 <p align="center">
-  <img src="#" height="40%" width="50%" title="budget-Tracker Preview">
+  <img src="https://raw.githubusercontent.com/egitweb/Budget-Tracker/main/budget-tracker-preview.png" height="40%" width="50%" title="budget-Tracker Preview">
 </p>
 
 # Table of Contents 
