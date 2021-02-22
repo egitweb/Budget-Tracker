@@ -1,53 +1,70 @@
-const CACHE_NAME = "static-cache-v2";
-const DATA_CACHE_NAME = "data-cache-v1";
+const CACHE_NAME = 'static-cache-v13';
+const DATA_CACHE_NAME = 'data-cache-v8';
 
+//Set Up Files to Cache
 const FILES_TO_CACHE = [
-    "/",
-    "/icons/icon-192x192.png",
-    "/icons/icon-512x512.png",
-    "/index.html",
-    "/style.css",
-    "/index.js",
-    "/manifest.webmanifest",
-
-];
+  "/",
+  "/index.html",
+  "/index.js",
+  "/db.js",
+  "/style.css"];
 
 
-self.addEventListener("install", function (evt) {    
-    // pre cache all static assets
-    evt.waitUntil(
-      caches.open(CACHE_NAME).then((cache) => cache.addAll(FILES_TO_CACHE))
-    );
-  
-    // tell the browser to activate this service worker immediately once it
-    // has finished installing
-    self.skipWaiting();
-  });
-  
-
-  self.addEventListener("activate", function(evt) {
-    evt.waitUntil(
-      caches.keys().then(keyList => {
-        return Promise.all(
-          keyList.map(key => {
-            if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
-              console.log("Removing old cache data", key);
-              return caches.delete(key);
-            }
+//Install => Service Worker
+  self.addEventListener('install', evt => {
+      evt.waitUntil(
+          caches.open(CACHE_NAME).then(cache =>{
+              console.log('Your files were pre-cached successfully');
+              return cache.addAll(FILES_TO_CACHE);
           })
-        );
-      })
-    );
-  
-    self.clients.claim();
+      );
+      self.skipWaiting();
   });
-  
 
-  self.addEventListener('fetch', function(evt) {
-    // code to handle requests goes here
+  //Activate => Service Worker
+  self.addEventListener('activate', evt => {
+      evt.waitUntil(
+          caches.keys().then(keyList => {
+              return Promise.all(
+                  keyList.map( key => {
+                      if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
+                          console.log('Removing old cache data', key);
+                          return caches.delete(key);
+                      }
+                  })
+              );
+          })
+      );
+      self.clients.claim();
+  });
 
-    
+  //Fetch => Offline Files
+  self.addEventListener('fetch',  evt =>{
+      if (evt.request.url.includes('/api/')) {
+      
+        evt.respondWith(
+              caches.open(DATA_CACHE_NAME).then(cache => {
+                  return fetch(evt.request)
+                      .then(response  => {
+                          if (response.status === 200) {
+                              cache.put(evt.request.url, response.clone());
+                          }
+                          return response;
+                      })
+                      .catch(err => {
+                          return cache.match(evt.request);
+                      });
+              })
+          );
+          return;
+      }
 
-    
-    });
-    
+      evt.respondWith(
+          caches.open(CACHE_NAME).then( cache => {
+              return cache.match(evt.request).then(response => {
+                  return response || fetch(evt.request)
+              });
+
+          })
+      );
+  });
