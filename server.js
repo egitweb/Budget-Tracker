@@ -15,16 +15,13 @@ app.use(express.json());
 
 app.use(express.static("public"));
 
-mongoose.connect(
-  process.env.MONGODB_URI || 'mongodb+srv://Eug-admin:Admin.mongo95@cluster0.yq9ln.mongodb.net/budget?retryWrites=true&w=majority',
-  {
-    useNewUrlParser: true,
+mongoose.connect("mongodb://localhost/budget", {
+  useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false
-  }
-);
 
+});
 
 
 
